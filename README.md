@@ -1,12 +1,12 @@
-# Project: NAME
+# Project: Refactor an Exploding Kitten
 
 ## Contributors
-NAME, NAME, NAME
+Dr. Yiji Zhang, Shuhao Gao
 
 ## Dependencies
-- LANGUAGE AND VERSION
-- EXTERNAL LIBRARIES
-- ETC
+- JDK 11
+- JUnit 5.10
+- Gradle 8.10
 
 ## Build Instructions
 HOW TO BUILD YOUR PROJECT.
