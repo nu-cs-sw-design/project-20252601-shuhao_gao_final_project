@@ -1,0 +1,200 @@
+@startuml
+package "domain.game" {
+    enum GameType {
+        NONE
+        EXPLODING_KITTENS
+        STREAKING_KITTENS
+        IMPLODING_KITTENS
+    }
+
+    enum CardType {
+        NOPE
+        DEFUSE
+        ATTACK
+        SHUFFLE
+        SKIP
+        SEE_THE_FUTURE
+        CAT_ONE
+        CAT_TWO
+        CAT_THREE
+        CAT_FOUR
+        EXPLODING_KITTEN
+        STREAKING_KITTEN
+        SWAP_TOP_AND_BOTTOM
+        GARBAGE_COLLECTION
+        CURSE_OF_THE_CAT_BUTT
+        ALTER_THE_FUTURE
+        CATOMIC_BOMB
+        SUPER_SKIP
+        MARK
+        IMPLODING_KITTEN
+        REVERSE
+        FERAL_CAT
+        TARGETED_ATTACK
+        DRAW_FROM_THE_BOTTOM
+    }
+
+    class Card {
+        - CardType cardType
+        - boolean isMarked
+        - boolean isFacedUp
+        --
+        + Card(CardType)
+        + getCardType() : CardType
+        + markCard()
+        + checkIfMarked() : boolean
+        + setFacedUp()
+        + checkIfFacedUp() : boolean
+    }
+
+    class Deck {
+        - List<Card> deck
+        - Random rand
+        - GameType gameType
+        - int numberOfPlayers
+        - int maxDeckSize
+        - Instantiator instantiator
+        --
+        + Deck(List<Card>, Random, GameType, int, int, Instantiator)
+        + getDeckSize() : int
+        + getCardAtIndex(int) : Card
+        + initializeDeck()
+        + shuffleDeck()
+        + insertCard(CardType, int, boolean)
+        + drawCard() : Card
+        + drawCardFromBottom() : Card
+        + setNumberOfPlayers(int)
+        + chooseGameType(GameType)
+        + removeBombs() : int
+        + insertExplodingKittenAtIndex(int)
+        + insertImplodingKittenAtIndex(int, Card)
+        + reorderDeckCards(int[], List<Card>)
+    }
+
+    class Game {
+        - int numberOfPlayers
+        - GameType gameType
+        - Deck deck
+        - Player[] players
+        - Random rand
+        - int currentPlayerTurn
+        - int currentPlayerNumberOfTurns
+        - boolean isReversed
+        - List<Integer> attackQueue
+        - int attackCounter
+        - int numberOfAttacks
+        - int[] turnTracker
+        - boolean attacked
+        --
+        + Game(int, GameType, Deck, Player[], Random, List<Integer>, int[])
+        + swapTopAndBottom()
+        + stealRandomCard(int) : Card
+        + stealTypeCard(CardType, int)
+        + startAttackPhase()
+        + playAttack()
+        + playTargetedAttack(int)
+        + playExplodingKitten(int) : boolean
+        + playImplodingKitten()
+        + playDefuse(int, int)
+        + drawFromBottom() : Card
+        + playCatomicBomb()
+        + setNumberOfPlayers(int)
+        + playReverse()
+        + retrieveGameMode(GameType)
+        + selectRandomPlayer() : Player
+        + playShuffle(int)
+        + playSkip(boolean) : int
+        + playGarbageCollection(CardType)
+        + getDeck() : Deck
+        + incrementPlayerTurn()
+        + getGameType() : GameType
+        + getPlayerAtIndex(int) : Player
+        + getPlayerTurn() : int
+        + getNumberOfPlayers() : int
+        + checkNumberOfAlivePlayers() : int
+        + drawCard() : Card
+        + getCardAtIndex(int) : Card
+        + addCardToHand(Card)
+        + checkIfPlayerDead(int) : boolean
+        + checkIfPlayerHasCard(int, CardType) : boolean
+        + getCardType(int, int) : CardType
+        + getHandSize(int) : int
+        + playMark(int, int)
+        + addAttackQueue(int)
+        + removeAttackQueue() : int
+        + isAttackQueueEmpty() : boolean
+    }
+
+    class Player {
+        - int playerID
+        - List<Card> hand
+        - boolean isDead
+        - Random rand
+        - boolean isCursed
+        --
+        + Player(int, Instantiator)
+        + getPlayerID() : int
+        + addDefuse(Card)
+        + addCardToHand(Card)
+        + hasCard(CardType) : boolean
+        + getHandSize() : int
+        + getCardAt(int) : Card
+        + getIndexOfCard(CardType) : int
+        + removeCardFromHand(int) : CardType
+        + shuffleHand()
+        + checkNumberOfCardsInHand(CardType) : int
+        + getIsDead() : boolean
+        + setIsDead()
+        + getIsCursed() : boolean
+        + setCursed(boolean)
+    }
+
+    class Instantiator {
+        + createCard(CardType) : Card
+        + createRandom() : Random
+        + createCardList() : ArrayList<Card>
+    }
+}
+
+package "ui" {
+    class GameUI {
+        - Game game
+        - ResourceBundle messages
+        --
+        + GameUI(Game)
+        + chooseLanguage()
+        + chooseGame()
+        + chooseNumberOfPlayers()
+        + startTurn()
+        + endGame()
+        + checkIfGameOver() : boolean
+    }
+
+    class Main {
+        + main(String[])
+    }
+}
+
+Game "1" *-- "1" Deck
+Game "1" o-- "2..6" Player
+Deck "1" o-- "0..*" Card
+Player "1" o-- "0..*" Card
+
+Card ..> CardType
+CardType ..> GameType
+Deck ..> CardType
+Deck ..> GameType
+Deck ..> Instantiator
+Game ..> CardType
+Game ..> Card
+Player ..> CardType
+Player ..> Instantiator
+GameUI ..> Game
+Main ..> GameUI
+Main ..> Game
+Main ..> Deck
+Main ..> Player
+Main ..> Instantiator
+Main ..> Card
+Main ..> CardType
+@enduml
