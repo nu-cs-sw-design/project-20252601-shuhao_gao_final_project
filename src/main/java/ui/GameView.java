@@ -2,13 +2,19 @@ package ui;
 
 import domain.game.Card;
 import domain.game.CardType;
+import domain.game.events.CardPlayedEvent;
+import domain.game.events.GameEvent;
+import domain.game.events.GameStateChangedEvent;
+import domain.game.events.PlayerTurnChangedEvent;
+import domain.game.observer.GameObserver;
+
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
 
-public class GameView {
+public class GameView implements GameObserver {
 	private ResourceBundle messages;
 	private Scanner scanner;
 
@@ -99,6 +105,25 @@ public class GameView {
 
 	public ResourceBundle getMessages() {
 		return messages;
+	}
+
+	@Override
+	public void onGameEvent(GameEvent event) {
+		if (event instanceof PlayerTurnChangedEvent) {
+			PlayerTurnChangedEvent turnEvent = (PlayerTurnChangedEvent) event;
+			displayPlayerTurn(turnEvent.getPlayerIndex(),
+					turnEvent.getNumberOfTurns(),
+					turnEvent.getHandSnapshot());
+		} else if (event instanceof CardPlayedEvent) {
+			CardPlayedEvent cardEvent = (CardPlayedEvent) event;
+			final String cardPlayed = MessageFormat.format(
+					"Player {0} played {1}",
+					cardEvent.getPlayerIndex(),
+					getLocalizedCardType(cardEvent.getCardType()));
+			displayMessage(cardPlayed);
+		} else if (event instanceof GameStateChangedEvent) {
+			displayMessage(((GameStateChangedEvent) event).getMessage());
+		}
 	}
 }
 

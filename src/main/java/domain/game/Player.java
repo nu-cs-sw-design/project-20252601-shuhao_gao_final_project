@@ -1,5 +1,6 @@
 package domain.game;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -108,6 +109,10 @@ public class Player {
 
 	public void setCursed(boolean isCursed) {
 		this.isCursed = isCursed;
+	}
+
+	public List<Card> getHandSnapshot() {
+		return new ArrayList<Card>(hand);
 	}
 
 }

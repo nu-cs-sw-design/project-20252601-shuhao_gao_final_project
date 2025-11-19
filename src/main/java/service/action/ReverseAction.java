@@ -1,8 +1,8 @@
 package service.action;
 
-public class ReverseAction implements CardAction {
+public class ReverseAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
+	protected void doExecute(GameContext context) {
 		context.getGameService().playReverse();
 	}
 }

@@ -1,8 +1,8 @@
 package service.action;
 
-public class CatomicBombAction implements CardAction {
+public class CatomicBombAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
+	protected void doExecute(GameContext context) {
 		context.getGameService().playCatomicBomb();
 	}
 }

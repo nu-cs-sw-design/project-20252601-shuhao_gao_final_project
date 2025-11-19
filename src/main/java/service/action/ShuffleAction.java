@@ -1,9 +1,8 @@
 package service.action;
 
-public class ShuffleAction implements CardAction {
+public class ShuffleAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
-		// Default shuffle count is 1
+	protected void doExecute(GameContext context) {
 		context.getGameService().playShuffle(1);
 	}
 }

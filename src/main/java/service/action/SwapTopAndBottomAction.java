@@ -1,8 +1,8 @@
 package service.action;
 
-public class SwapTopAndBottomAction implements CardAction {
+public class SwapTopAndBottomAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
+	protected void doExecute(GameContext context) {
 		context.getGameService().swapTopAndBottom();
 	}
 }

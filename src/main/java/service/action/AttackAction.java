@@ -1,10 +1,9 @@
 package service.action;
 
-public class AttackAction implements CardAction {
+public class AttackAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
+	protected void doExecute(GameContext context) {
 		context.getGameService().playAttack();
 		context.getGameService().startAttackPhase();
 	}
 }
-

@@ -31,4 +31,8 @@ public enum CardType {
 	CardType(domain.game.GameType gameType) {
 		this.gameType = gameType;
 	}
+
+	public domain.game.GameType getGameType() {
+		return gameType;
+	}
 }

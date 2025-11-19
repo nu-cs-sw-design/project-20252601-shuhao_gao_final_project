@@ -1,10 +1,8 @@
 package service.action;
 
-public class TargetedAttackAction implements CardAction {
+public class TargetedAttackAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
-		// Targeted attack requires player selection, which should be handled by UI
-		// This is a placeholder - actual implementation needs player index
+	protected void doExecute(GameContext context) {
 		context.getGameService().playTargetedAttack(context.getPlayerIndex());
 		context.getGameService().startAttackPhase();
 	}

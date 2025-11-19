@@ -2,9 +2,9 @@ package service.action;
 
 import domain.game.Card;
 
-public class DrawFromBottomAction implements CardAction {
+public class DrawFromBottomAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
+	protected void doExecute(GameContext context) {
 		Card card = context.getGameService().drawFromBottom();
 		context.getCardService().addCardToHand(card);
 	}

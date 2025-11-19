@@ -1,6 +1,7 @@
 package service.action;
 
 import domain.game.CardType;
+import domain.game.Game;
 import service.ICardService;
 import service.IGameService;
 import service.ITurnService;
@@ -46,6 +47,10 @@ public class GameContext {
 
 	public ITurnService getTurnService() {
 		return turnService;
+	}
+
+	public Game getGame() {
+		return gameService.getGame();
 	}
 }
 

@@ -1,7 +1,6 @@
 package service.action;
 
 import domain.game.CardType;
-import service.IGameService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +8,7 @@ import java.util.Map;
 public class CardActionFactory {
 	private Map<CardType, CardAction> actionMap;
 
-	public CardActionFactory(IGameService gameService) {
+	public CardActionFactory() {
 		this.actionMap = new HashMap<>();
 		initializeActions();
 	}
@@ -43,9 +42,9 @@ public class CardActionFactory {
 		return action;
 	}
 
-	private static class DefaultCardAction implements CardAction {
+	private static class DefaultCardAction extends AbstractCardAction {
 		@Override
-		public void execute(GameContext context) {
+		protected void doExecute(GameContext context) {
 			// Default no-op action for cards that don't have specific implementations yet
 		}
 	}

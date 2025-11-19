@@ -1,0 +1,113 @@
+@startuml
+package "domain.game" {
+    class Game implements GameObservable {
+        - List<GameObserver> observers
+        --
+        + addObserver(GameObserver)
+        + removeObserver(GameObserver)
+        + notifyObservers(GameEvent)
+    }
+
+    interface GameObservable
+    interface GameObserver
+
+    GameObservable <|.. Game
+    GameObserver <|.. GameView
+}
+
+package "domain.game.events" {
+    abstract class GameEvent
+    class PlayerTurnChangedEvent
+    class CardPlayedEvent
+    class GameStateChangedEvent
+
+    GameEvent <|-- PlayerTurnChangedEvent
+    GameEvent <|-- CardPlayedEvent
+    GameEvent <|-- GameStateChangedEvent
+}
+
+package "service.action" {
+    interface CardAction
+    abstract class AbstractCardAction
+    class AttackAction
+    class SkipAction
+    class SuperSkipAction
+    class ShuffleAction
+    class ReverseAction
+    class DrawFromBottomAction
+    class TargetedAttackAction
+    class CatomicBombAction
+    class NopeAction
+
+    CardAction <|-- AbstractCardAction
+    AbstractCardAction <|-- AttackAction
+    AbstractCardAction <|-- SkipAction
+    AbstractCardAction <|-- SuperSkipAction
+    AbstractCardAction <|-- ShuffleAction
+    AbstractCardAction <|-- ReverseAction
+    AbstractCardAction <|-- DrawFromBottomAction
+    AbstractCardAction <|-- TargetedAttackAction
+    AbstractCardAction <|-- CatomicBombAction
+    AbstractCardAction <|-- NopeAction
+
+    class GameContext
+    class CardActionFactory
+
+    CardActionFactory "1" --> "*" CardAction : creates
+    CardAction --> GameContext
+    GameContext --> IGameService
+    GameContext --> ICardService
+    GameContext --> ITurnService
+}
+
+package "service" {
+    class GameService implements IGameService {
+        - CardActionFactory actionFactory
+        + executeCardAction(CardType, GameContext)
+        + setPlayerNumberOfTurns()
+        + setTurnToTargetedIndexIfAttackOccurred()
+        + incrementPlayerTurn()
+        ..Observer updates..
+    }
+}
+
+package "service.facade" {
+    class GameFacade {
+        - IGameService gameService
+        - ICardService cardService
+        - ITurnService turnService
+        --
+        + setGameType(GameType)
+        + setNumberOfPlayers(int)
+        + prepareTurn()
+        + executeCardAction(CardType, GameContext)
+        + addObserver(GameObserver)
+        + checkIfGameOver() : boolean
+    }
+}
+
+package "ui" {
+    class GameView implements GameObserver
+    class GameController {
+        - GameFacade facade
+        - GameView view
+    }
+    class GameUI {
+        - GameController controller
+    }
+    class Main
+
+    GameController --> GameFacade : uses
+    GameController --> GameView : updates
+    GameView --> GameFacade : (event driven) [optional reference]
+    GameUI --> GameController : delegates
+    Main --> GameController : creates
+    Main --> GameFacade : creates
+}
+
+domain.game.Game --> domain.game.events.PlayerTurnChangedEvent : notifies
+domain.game.Game --> domain.game.events.CardPlayedEvent : notifies
+
+GameFacade --> domain.game.Game : wraps
+GameFacade --> GameObserver : add/remove
+@enduml

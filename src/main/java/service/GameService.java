@@ -4,6 +4,10 @@ import domain.game.Card;
 import domain.game.CardType;
 import domain.game.Game;
 import domain.game.Player;
+import domain.game.events.PlayerTurnChangedEvent;
+
+import java.util.List;
+import service.action.CardAction;
 import service.action.CardActionFactory;
 import service.action.GameContext;
 
@@ -25,7 +29,7 @@ public class GameService implements IGameService {
 
 	public GameService(Game game) {
 		this.game = game;
-		this.cardActionFactory = new CardActionFactory(this);
+		this.cardActionFactory = new CardActionFactory();
 	}
 
 	@Override
@@ -235,6 +239,7 @@ public class GameService implements IGameService {
 		do {
 			game.setCurrentPlayerTurn((game.getPlayerTurn() + 1) % game.getNumberOfPlayers());
 		} while (checkIfPlayerDead(game.getPlayerTurn()));
+		notifyPlayerTurnChanged();
 	}
 
 	@Override
@@ -341,6 +346,7 @@ public class GameService implements IGameService {
 		int[] turnTracker = game.getTurnTracker();
 		game.setCurrentPlayerNumberOfTurns(turnTracker[game.getPlayerTurn()]);
 		turnTracker[game.getPlayerTurn()] = 1;
+		notifyPlayerTurnChanged();
 	}
 
 	@Override
@@ -350,6 +356,8 @@ public class GameService implements IGameService {
 			game.setCurrentPlayerTurn(game.getAttackCounter());
 			if (checkIfPlayerDead(game.getPlayerTurn())) {
 				incrementPlayerTurn();
+			} else {
+				notifyPlayerTurnChanged();
 			}
 		}
 	}
@@ -396,8 +404,15 @@ public class GameService implements IGameService {
 
 	@Override
 	public void executeCardAction(CardType cardType, GameContext context) {
-		service.action.CardAction action = cardActionFactory.createAction(cardType);
+		CardAction action = cardActionFactory.createAction(cardType);
 		action.execute(context);
+	}
+
+	private void notifyPlayerTurnChanged() {
+		Player currentPlayer = game.getPlayerAtIndex(game.getPlayerTurn());
+		List<Card> handSnapshot = currentPlayer.getHandSnapshot();
+		game.notifyObservers(new PlayerTurnChangedEvent(game.getPlayerTurn(),
+				game.getNumberOfTurns(), handSnapshot));
 	}
 }
 

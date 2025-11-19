@@ -1,9 +1,14 @@
 package domain.game;
 
+import domain.game.events.GameEvent;
+import domain.game.observer.GameObservable;
+import domain.game.observer.GameObserver;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Game {
+public class Game implements GameObservable {
 	private int numberOfPlayers;
 	private GameType gameType;
 	private Deck deck;
@@ -18,6 +23,7 @@ public class Game {
 	private int numberOfAttacks;
 	private int[] turnTracker;
 	private boolean attacked;
+	private transient List<GameObserver> observers;
 
 	public Game(int numberOfPlayers, GameType gameType,
 				Deck deck, Player[] players, Random rand,
@@ -36,6 +42,7 @@ public class Game {
 		this.attackCounter = 0;
 		this.numberOfAttacks = 0;
 		this.attacked = false;
+		this.observers = new ArrayList<GameObserver>();
 	}
 
 	// Getters
@@ -165,5 +172,31 @@ public class Game {
 	// For testing
 	GameType getGameTypeForTesting() {
 		return gameType;
+	}
+
+	@Override
+	public void addObserver(GameObserver observer) {
+		if (observers == null) {
+			observers = new ArrayList<GameObserver>();
+		}
+		observers.add(observer);
+	}
+
+	@Override
+	public void removeObserver(GameObserver observer) {
+		if (observers == null) {
+			return;
+		}
+		observers.remove(observer);
+	}
+
+	@Override
+	public void notifyObservers(GameEvent event) {
+		if (observers == null) {
+			return;
+		}
+		for (GameObserver observer : new ArrayList<GameObserver>(observers)) {
+			observer.onGameEvent(event);
+		}
 	}
 }

@@ -1,26 +1,19 @@
 package ui;
 
 import domain.game.GameType;
-import service.ICardService;
-import service.IGameService;
-import service.ITurnService;
+import service.facade.GameFacade;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.text.MessageFormat;
 
 public class GameController {
-	private IGameService gameService;
-	private ICardService cardService;
-	private ITurnService turnService;
-	private GameView view;
+	private final GameFacade facade;
+	private final GameView view;
 
-	public GameController(IGameService gameService, ICardService cardService,
-						  ITurnService turnService, GameView view) {
-		this.gameService = gameService;
-		this.cardService = cardService;
-		this.turnService = turnService;
+	public GameController(GameFacade facade, GameView view) {
+		this.facade = facade;
 		this.view = view;
+		facade.addObserver(view);
 	}
 
 	public void chooseLanguage() {
@@ -57,17 +50,17 @@ public class GameController {
 			String userInput = view.promptInput(gameModeChoicePrompt);
 			switch (userInput) {
 				case "1":
-					gameService.getGame().setGameType(GameType.EXPLODING_KITTENS);
+					facade.setGameType(GameType.EXPLODING_KITTENS);
 					final String gameModeExploding = view.getMessages().getString("gameModeExploding");
 					view.displayMessage(gameModeExploding);
 					return;
 				case "2":
-					gameService.getGame().setGameType(GameType.IMPLODING_KITTENS);
+					facade.setGameType(GameType.IMPLODING_KITTENS);
 					final String gameModeImploding = view.getMessages().getString("gameModeImploding");
 					view.displayMessage(gameModeImploding);
 					return;
 				case "3":
-					gameService.getGame().setGameType(GameType.STREAKING_KITTENS);
+					facade.setGameType(GameType.STREAKING_KITTENS);
 					final String gameModeStreaking = view.getMessages().getString("gameModeStreaking");
 					view.displayMessage(gameModeStreaking);
 					return;
@@ -93,15 +86,15 @@ public class GameController {
 			final int fourPlayers = 4;
 			switch (userInput) {
 				case "2":
-					gameService.getGame().setNumberOfPlayers(twoPlayers);
+					facade.setNumberOfPlayers(twoPlayers);
 					view.displayMessage(numOfPlayersTwo);
 					return;
 				case "3":
-					gameService.getGame().setNumberOfPlayers(threePlayers);
+					facade.setNumberOfPlayers(threePlayers);
 					view.displayMessage(numOfPlayersThree);
 					return;
 				case "4":
-					gameService.getGame().setNumberOfPlayers(fourPlayers);
+					facade.setNumberOfPlayers(fourPlayers);
 					view.displayMessage(numOfPlayersFour);
 					return;
 				default:
@@ -111,22 +104,7 @@ public class GameController {
 	}
 
 	public void startTurn() {
-		// This is a simplified version - the full implementation would need
-		// to be migrated from GameUI.startTurn() method
-		// For now, this is a placeholder that shows the structure
-		if (turnService.checkIfNumberOfTurnsIsZero()) {
-			gameService.setTurnToTargetedIndexIfAttackOccurred();
-			turnService.setPlayerNumberOfTurns();
-		}
-
-		int currentPlayer = turnService.getPlayerTurn();
-		int numberOfTurns = turnService.getNumberOfTurns();
-		// Get player hand - this would need to be implemented
-		// For now, just display the turn
-		view.displayMessage(MessageFormat.format(
-				view.getMessages().getString("currentPlayerTurn"), currentPlayer));
-		view.displayMessage(MessageFormat.format(
-				view.getMessages().getString("playerTurnsMessage"), numberOfTurns));
+		facade.prepareTurn();
 	}
 
 	public void endGame() {
@@ -134,23 +112,7 @@ public class GameController {
 	}
 
 	public boolean checkIfGameOver() {
-		return gameService.checkNumberOfAlivePlayers() == 1;
-	}
-
-	public IGameService getGameService() {
-		return gameService;
-	}
-
-	public ICardService getCardService() {
-		return cardService;
-	}
-
-	public ITurnService getTurnService() {
-		return turnService;
-	}
-
-	public GameView getView() {
-		return view;
+		return facade.checkIfGameOver();
 	}
 }
 

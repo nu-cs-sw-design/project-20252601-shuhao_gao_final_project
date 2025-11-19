@@ -1,6 +1,5 @@
 package ui;
 
-import domain.game.Card;
 import domain.game.CardType;
 import domain.game.Deck;
 import domain.game.Game;
@@ -9,6 +8,7 @@ import domain.game.Player;
 import service.CardService;
 import service.GameService;
 import service.TurnService;
+import service.facade.GameFacade;
 import service.factory.GameFactory;
 import service.factory.ExplodingKittensFactory;
 import service.factory.StreakingKittensFactory;
@@ -47,9 +47,10 @@ public class Main {
 		CardService cardService = new CardService(game);
 		TurnService turnService = new TurnService(game);
 
-		// Create view and controller (MVC pattern)
+		// Create facade, view and controller (MVC pattern with facade)
+		GameFacade facade = new GameFacade(gameService, cardService, turnService);
 		GameView view = new GameView();
-		GameController controller = new GameController(gameService, cardService, turnService, view);
+		GameController controller = new GameController(facade, view);
 
 		// Initialize game
 		controller.chooseLanguage();

@@ -1,8 +1,8 @@
 package service.action;
 
-public class SuperSkipAction implements CardAction {
+public class SuperSkipAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
+	protected void doExecute(GameContext context) {
 		context.getGameService().playSkip(true);
 	}
 }

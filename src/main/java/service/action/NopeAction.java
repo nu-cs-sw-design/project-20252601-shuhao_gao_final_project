@@ -1,10 +1,14 @@
 package service.action;
 
-public class NopeAction implements CardAction {
+public class NopeAction extends AbstractCardAction {
 	@Override
-	public void execute(GameContext context) {
-		// Nope card logic - typically handled during other card plays
-		// This is a placeholder
+	protected void doExecute(GameContext context) {
+		// NOPE interrupts other actions; concrete handling occurs elsewhere
+	}
+
+	@Override
+	protected void updateState(GameContext context) {
+		// Override to suppress default card played event
 	}
 }
 
