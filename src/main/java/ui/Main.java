@@ -7,6 +7,9 @@ import domain.game.Deck;
 import domain.game.Game;
 import domain.game.GameType;
 import domain.game.Player;
+import service.CardService;
+import service.GameService;
+import service.TurnService;
 
 import java.util.ArrayList;
 import java.security.SecureRandom;
@@ -21,7 +24,7 @@ public class Main {
 		final int maxDeckSize = 42;
 		Instantiator instantiator = new Instantiator();
 
-		Deck deck = new domain.game.Deck(new ArrayList<>(), new SecureRandom(),
+		Deck deck = new Deck(new ArrayList<>(), new SecureRandom(),
 				GameType.NONE, 0, maxDeckSize, instantiator);
 		Player[] players = {new Player(playerIDZero, instantiator),
 				new Player(playerIDOne, instantiator),
@@ -32,21 +35,30 @@ public class Main {
 		Game game = new Game(0, GameType.NONE, deck,
 				players, new SecureRandom(),
 				new ArrayList<Integer>(), turnTracker);
-		GameUI gameUI = new GameUI(game);
-		gameUI.chooseLanguage();
-		gameUI.chooseGame();
-		gameUI.chooseNumberOfPlayers();
-		for (int playerCounter = 0; playerCounter <
-				game.getNumberOfPlayers(); playerCounter++) {
+
+		// Create service layer
+		GameService gameService = new GameService(game);
+		CardService cardService = new CardService(game);
+		TurnService turnService = new TurnService(game);
+
+		// Create view and controller (MVC pattern)
+		GameView view = new GameView();
+		GameController controller = new GameController(gameService, cardService, turnService, view);
+
+		// Initialize game
+		controller.chooseLanguage();
+		controller.chooseGame();
+		controller.chooseNumberOfPlayers();
+
+		// Setup game
+		for (int playerCounter = 0; playerCounter < game.getNumberOfPlayers(); playerCounter++) {
 			game.getPlayerAtIndex(playerCounter).addDefuse(new Card(CardType.DEFUSE));
 		}
 		game.getDeck().initializeDeck();
 		game.getDeck().shuffleDeck();
 		final int cardDrawnPerPlayer = 5;
-		for (int cardDrawnCounter = 0;
-			cardDrawnCounter < cardDrawnPerPlayer; cardDrawnCounter++) {
-			for (int playerCtr = 0; playerCtr <
-					game.getNumberOfPlayers(); playerCtr++) {
+		for (int cardDrawnCounter = 0; cardDrawnCounter < cardDrawnPerPlayer; cardDrawnCounter++) {
+			for (int playerCtr = 0; playerCtr < game.getNumberOfPlayers(); playerCtr++) {
 				Player current = game.getPlayerAtIndex(playerCtr);
 				current.addCardToHand(game.getDeck().drawCard());
 			}
@@ -63,11 +75,12 @@ public class Main {
 					1, false);
 		}
 
-		game.playShuffle(1);
+		gameService.playShuffle(1);
 
-		while (!gameUI.checkIfGameOver()) {
-			gameUI.startTurn();
+		// Game loop
+		while (!controller.checkIfGameOver()) {
+			controller.startTurn();
 		}
-		gameUI.endGame();
+		controller.endGame();
 	}
 }
