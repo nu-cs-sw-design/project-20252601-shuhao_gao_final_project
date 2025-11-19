@@ -1,6 +1,5 @@
 package ui;
 
-import domain.game.Instantiator;
 import domain.game.Card;
 import domain.game.CardType;
 import domain.game.Deck;
@@ -10,9 +9,12 @@ import domain.game.Player;
 import service.CardService;
 import service.GameService;
 import service.TurnService;
+import service.factory.GameFactory;
+import service.factory.ExplodingKittensFactory;
+import service.factory.StreakingKittensFactory;
+import service.factory.ImplodingKittensFactory;
 
 import java.util.ArrayList;
-import java.security.SecureRandom;
 
 public class Main {
 	public static void main(String[] args) {
@@ -22,18 +24,22 @@ public class Main {
 		final int playerIDThree = 3;
 		final int playerIDFour = 4;
 		final int maxDeckSize = 42;
-		Instantiator instantiator = new Instantiator();
 
-		Deck deck = new Deck(new ArrayList<>(), new SecureRandom(),
-				GameType.NONE, 0, maxDeckSize, instantiator);
-		Player[] players = {new Player(playerIDZero, instantiator),
-				new Player(playerIDOne, instantiator),
-				new Player(playerIDTwo, instantiator),
-				new Player(playerIDThree, instantiator),
-				new Player(playerIDFour, instantiator)};
+		// Factory will be selected based on game type chosen by user
+		// For now, we'll use ExplodingKittensFactory as default
+		GameFactory factory = new ExplodingKittensFactory();
+
+		Deck deck = factory.createDeck(GameType.NONE, 0, maxDeckSize);
+		Player[] players = {
+				factory.createPlayer(playerIDZero),
+				factory.createPlayer(playerIDOne),
+				factory.createPlayer(playerIDTwo),
+				factory.createPlayer(playerIDThree),
+				factory.createPlayer(playerIDFour)
+		};
 		int[] turnTracker = {1, 1, 1, 1, 1};
 		Game game = new Game(0, GameType.NONE, deck,
-				players, new SecureRandom(),
+				players, factory.createRandom(),
 				new ArrayList<Integer>(), turnTracker);
 
 		// Create service layer
@@ -48,11 +54,22 @@ public class Main {
 		// Initialize game
 		controller.chooseLanguage();
 		controller.chooseGame();
+
+		// Select factory based on game type
+		GameType selectedGameType = game.getGameType();
+		if (selectedGameType == GameType.STREAKING_KITTENS) {
+			factory = new StreakingKittensFactory();
+		} else if (selectedGameType == GameType.IMPLODING_KITTENS) {
+			factory = new ImplodingKittensFactory();
+		} else {
+			factory = new ExplodingKittensFactory();
+		}
+
 		controller.chooseNumberOfPlayers();
 
 		// Setup game
 		for (int playerCounter = 0; playerCounter < game.getNumberOfPlayers(); playerCounter++) {
-			game.getPlayerAtIndex(playerCounter).addDefuse(new Card(CardType.DEFUSE));
+			game.getPlayerAtIndex(playerCounter).addDefuse(factory.createCard(CardType.DEFUSE));
 		}
 		game.getDeck().initializeDeck();
 		game.getDeck().shuffleDeck();

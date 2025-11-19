@@ -42,5 +42,6 @@ public interface IGameService {
 	void setPlayerNumberOfTurns();
 	void setTurnToTargetedIndexIfAttackOccurred();
 	Game getGame();
+	void executeCardAction(domain.game.CardType cardType, service.action.GameContext context);
 }
 

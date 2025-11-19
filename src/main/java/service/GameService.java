@@ -4,9 +4,12 @@ import domain.game.Card;
 import domain.game.CardType;
 import domain.game.Game;
 import domain.game.Player;
+import service.action.CardActionFactory;
+import service.action.GameContext;
 
 public class GameService implements IGameService {
 	private Game game;
+	private CardActionFactory cardActionFactory;
 
 	private static final String PLAYER_HAND_EMPTY_EXCEPTION = "Player has no cards to steal";
 	private static final String INVALID_PLAYER_INDEX_EXCEPTION = "Invalid player index.";
@@ -22,6 +25,7 @@ public class GameService implements IGameService {
 
 	public GameService(Game game) {
 		this.game = game;
+		this.cardActionFactory = new CardActionFactory(this);
 	}
 
 	@Override
@@ -388,6 +392,12 @@ public class GameService implements IGameService {
 
 	private void setCurrentPlayerNumberOfTurns(int numberOfTurns) {
 		game.setCurrentPlayerNumberOfTurns(numberOfTurns);
+	}
+
+	@Override
+	public void executeCardAction(CardType cardType, GameContext context) {
+		service.action.CardAction action = cardActionFactory.createAction(cardType);
+		action.execute(context);
 	}
 }
 
