@@ -8,6 +8,7 @@ import domain.game.Player;
 import service.CardService;
 import service.GameService;
 import service.TurnService;
+import service.action.CardActionFactory;
 import service.facade.GameFacade;
 import service.factory.GameFactory;
 import service.factory.ExplodingKittensFactory;
@@ -42,8 +43,8 @@ public class Main {
 				players, factory.createRandom(),
 				new ArrayList<Integer>(), turnTracker);
 
-		// Create service layer
-		GameService gameService = new GameService(game);
+		// Create service layer with dependency injection
+		GameService gameService = new GameService(game, CardActionFactory.getInstance());
 		CardService cardService = new CardService(game);
 		TurnService turnService = new TurnService(game);
 

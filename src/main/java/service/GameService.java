@@ -8,12 +8,13 @@ import domain.game.events.PlayerTurnChangedEvent;
 
 import java.util.List;
 import service.action.CardAction;
+import service.action.ICardActionFactory;
 import service.action.CardActionFactory;
 import service.action.GameContext;
 
 public class GameService implements IGameService {
 	private Game game;
-	private CardActionFactory cardActionFactory;
+	private ICardActionFactory cardActionFactory;
 
 	private static final String PLAYER_HAND_EMPTY_EXCEPTION = "Player has no cards to steal";
 	private static final String INVALID_PLAYER_INDEX_EXCEPTION = "Invalid player index.";
@@ -27,9 +28,14 @@ public class GameService implements IGameService {
 	private static final String NUMBER_OF_TURNS_OUT_OF_BOUNDS_EXCEPTION =
 			"Number of turns must be between 1 and 6.";
 
+	public GameService(Game game, ICardActionFactory cardActionFactory) {
+		this.game = game;
+		this.cardActionFactory = cardActionFactory;
+	}
+
 	public GameService(Game game) {
 		this.game = game;
-		this.cardActionFactory = new CardActionFactory();
+		this.cardActionFactory = CardActionFactory.getInstance();
 	}
 
 	@Override

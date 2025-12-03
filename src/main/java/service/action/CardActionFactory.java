@@ -5,12 +5,24 @@ import domain.game.CardType;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CardActionFactory {
+public class CardActionFactory implements ICardActionFactory {
+	private static volatile CardActionFactory instance;
 	private Map<CardType, CardAction> actionMap;
 
-	public CardActionFactory() {
+	private CardActionFactory() {
 		this.actionMap = new HashMap<>();
 		initializeActions();
+	}
+
+	public static CardActionFactory getInstance() {
+		if (instance == null) {
+			synchronized (CardActionFactory.class) {
+				if (instance == null) {
+					instance = new CardActionFactory();
+				}
+			}
+		}
+		return instance;
 	}
 
 	private void initializeActions() {
@@ -24,8 +36,7 @@ public class CardActionFactory {
 		actionMap.put(CardType.TARGETED_ATTACK, new TargetedAttackAction());
 		actionMap.put(CardType.CATOMIC_BOMB, new CatomicBombAction());
 		actionMap.put(CardType.NOPE, new NopeAction());
-		
-		// For cards that don't have direct actions yet, use a default no-op action
+
 		CardAction defaultAction = new DefaultCardAction();
 		for (CardType cardType : CardType.values()) {
 			if (!actionMap.containsKey(cardType)) {
@@ -34,6 +45,7 @@ public class CardActionFactory {
 		}
 	}
 
+	@Override
 	public CardAction createAction(CardType cardType) {
 		CardAction action = actionMap.get(cardType);
 		if (action == null) {
@@ -45,7 +57,6 @@ public class CardActionFactory {
 	private static class DefaultCardAction extends AbstractCardAction {
 		@Override
 		protected void doExecute(GameContext context) {
-			// Default no-op action for cards that don't have specific implementations yet
 		}
 	}
 }
