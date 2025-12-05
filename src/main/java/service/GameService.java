@@ -4,6 +4,7 @@ import domain.game.Card;
 import domain.game.CardType;
 import domain.game.Game;
 import domain.game.Player;
+import domain.game.config.GameConfiguration;
 import domain.game.events.PlayerTurnChangedEvent;
 
 import java.util.List;
@@ -83,12 +84,11 @@ public class GameService implements IGameService {
 
 	@Override
 	public void startAttackPhase() {
-		final int attackedAttackThreshold = 4;
 		game.setAttackCounter(game.getPlayerTurn());
 		game.setNumberOfAttacks(0);
 		while (!isAttackQueueEmpty()) {
 			int attack = removeAttackQueue();
-			if (attack <= attackedAttackThreshold) {
+			if (attack <= GameConfiguration.ATTACK_TARGETED_THRESHOLD) {
 				playTargetedAttack(attack);
 			} else {
 				playAttack();
@@ -106,10 +106,7 @@ public class GameService implements IGameService {
 		} else {
 			turnTracker[attackCounter] += game.getNumberOfAttacks();
 		}
-		decrementNumberOfTurns();
-		if (checkIfNumberOfTurnsIsZero()) {
-			incrementPlayerTurn();
-		}
+		// Note: decrementNumberOfTurns() is called in executeCardAction()
 	}
 
 	@Override
@@ -223,14 +220,15 @@ public class GameService implements IGameService {
 		if (checkIfNumberOfTurnsOutOfBounds()) {
 			throw new UnsupportedOperationException(NUMBER_OF_TURNS_OUT_OF_BOUNDS_EXCEPTION);
 		}
+		// Note: The turn count will be decremented in executeCardAction()
+		// For SuperSkip, we want to end turn immediately
+		// For regular Skip, just let the normal decrement handle it
 		if (superSkip) {
-			setCurrentPlayerNumberOfTurns(0);
-		} else {
-			game.setCurrentPlayerNumberOfTurns(game.getNumberOfTurns() - 1);
+			// After executeCardAction decrements by 1, we want it to be 0
+			// So set it to 1 here
+			setCurrentPlayerNumberOfTurns(1);
 		}
-		if (checkIfNumberOfTurnsIsZero()) {
-			incrementPlayerTurn();
-		}
+		// Regular skip: do nothing, let executeCardAction() decrement once
 		return game.getNumberOfTurns();
 	}
 
@@ -410,8 +408,12 @@ public class GameService implements IGameService {
 
 	@Override
 	public void executeCardAction(CardType cardType, GameContext context) {
+		int playerIndex = context.getPlayerIndex();
+		int cardIndex = context.getCardIndex();
 		CardAction action = cardActionFactory.createAction(cardType);
 		action.execute(context);
+		game.getPlayerAtIndex(playerIndex).removeCardFromHand(cardIndex);
+		decrementNumberOfTurns();
 	}
 
 	private void notifyPlayerTurnChanged() {

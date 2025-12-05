@@ -20,6 +20,10 @@ application {
     mainClass = "ui.Main"
 }
 
+tasks.named<JavaExec>("run") {
+    standardInput = System.`in`
+}
+
 tasks.compileJava {
     options.release = 11
 }

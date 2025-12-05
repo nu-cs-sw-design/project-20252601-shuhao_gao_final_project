@@ -21,9 +21,15 @@ public class TurnService implements ITurnService {
 
 	@Override
 	public void setPlayerNumberOfTurns() {
-		int[] turnTracker = game.getTurnTracker();
-		game.setCurrentPlayerNumberOfTurns(turnTracker[game.getPlayerTurn()]);
-		turnTracker[game.getPlayerTurn()] = 1;
+		// Only restore from turnTracker if numberOfTurns is 0 (new turn starting)
+		if (game.getNumberOfTurns() == 0) {
+			int[] turnTracker = game.getTurnTracker();
+			int currentPlayer = game.getPlayerTurn();
+			game.setCurrentPlayerNumberOfTurns(turnTracker[currentPlayer]);
+			// Reset turnTracker to 1 for next time
+			turnTracker[currentPlayer] = 1;
+		}
+		// Otherwise, keep the current numberOfTurns value (turn in progress)
 	}
 
 	@Override
@@ -31,6 +37,8 @@ public class TurnService implements ITurnService {
 		do {
 			game.setCurrentPlayerTurn((game.getPlayerTurn() + 1) % game.getNumberOfPlayers());
 		} while (game.getPlayerAtIndex(game.getPlayerTurn()).getIsDead());
+		// Reset numberOfTurns to 0 so prepareTurn() will restore from turnTracker
+		game.setCurrentPlayerNumberOfTurns(0);
 	}
 
 	@Override

@@ -11,9 +11,7 @@ import service.TurnService;
 import service.action.CardActionFactory;
 import service.facade.GameFacade;
 import service.factory.GameFactory;
-import service.factory.ExplodingKittensFactory;
-import service.factory.StreakingKittensFactory;
-import service.factory.ImplodingKittensFactory;
+import service.factory.GameFactoryProvider;
 
 import java.util.ArrayList;
 
@@ -26,9 +24,9 @@ public class Main {
 		final int playerIDFour = 4;
 		final int maxDeckSize = 42;
 
-		// Factory will be selected based on game type chosen by user
-		// For now, we'll use ExplodingKittensFactory as default
-		GameFactory factory = new ExplodingKittensFactory();
+		// Use Factory Method Pattern: Get factory through provider
+		// Initial factory for setup (before user selects game type)
+		GameFactory factory = GameFactoryProvider.getFactory(GameType.NONE);
 
 		Deck deck = factory.createDeck(GameType.NONE, 0, maxDeckSize);
 		Player[] players = {
@@ -57,15 +55,10 @@ public class Main {
 		controller.chooseLanguage();
 		controller.chooseGame();
 
-		// Select factory based on game type
+		// Use Factory Method Pattern: Get the appropriate factory based on selected game type
+		// This demonstrates the Open/Closed Principle - no need to modify Main when adding new game types
 		GameType selectedGameType = game.getGameType();
-		if (selectedGameType == GameType.STREAKING_KITTENS) {
-			factory = new StreakingKittensFactory();
-		} else if (selectedGameType == GameType.IMPLODING_KITTENS) {
-			factory = new ImplodingKittensFactory();
-		} else {
-			factory = new ExplodingKittensFactory();
-		}
+		factory = GameFactoryProvider.getFactory(selectedGameType);
 
 		controller.chooseNumberOfPlayers();
 

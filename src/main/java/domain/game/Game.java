@@ -192,10 +192,14 @@ public class Game implements GameObservable {
 
 	@Override
 	public void notifyObservers(GameEvent event) {
-		if (observers == null) {
+		if (observers == null || event == null) {
 			return;
 		}
-		for (GameObserver observer : new ArrayList<GameObserver>(observers)) {
+		java.util.List<GameObserver> observersCopy =
+				new java.util.ArrayList<GameObserver>(observers);
+		observersCopy.sort((o1, o2) ->
+				Boolean.compare(o1.isHighPriority(), o2.isHighPriority()));
+		for (GameObserver observer : observersCopy) {
 			observer.onGameEvent(event);
 		}
 	}

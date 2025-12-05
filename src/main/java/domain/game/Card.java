@@ -1,5 +1,7 @@
 package domain.game;
 
+import domain.game.visitor.CardVisitor;
+
 public class Card {
 	private CardType cardType;
 	private boolean isMarked;
@@ -29,6 +31,10 @@ public class Card {
 
 	public boolean checkIfFacedUp() {
 		return isFacedUp;
+	}
+
+	public void accept(CardVisitor visitor) {
+		visitor.visitCard(this);
 	}
 }
 

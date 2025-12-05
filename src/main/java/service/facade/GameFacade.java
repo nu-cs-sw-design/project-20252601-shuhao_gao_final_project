@@ -83,5 +83,29 @@ public class GameFacade {
 	public int getNumberOfTurns() {
 		return turnService.getNumberOfTurns();
 	}
+
+	public Card drawCard() {
+		return gameService.drawCard();
+	}
+
+	public void incrementPlayerTurn() {
+		turnService.incrementPlayerTurn();
+	}
+
+	public void setCurrentPlayerNumberOfTurns(int turns) {
+		turnService.setCurrentPlayerNumberOfTurns(turns);
+	}
+
+	public void playAttack() {
+		gameService.playAttack();
+		gameService.startAttackPhase();
+	}
+
+	public void addAttacksToTargetPlayer() {
+		// Process attack queue and add turns to next player
+		if (!gameService.isAttackQueueEmpty()) {
+			gameService.startAttackPhase();
+		}
+	}
 }
 

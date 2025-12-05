@@ -4,5 +4,9 @@ import domain.game.events.GameEvent;
 
 public interface GameObserver {
 	void onGameEvent(GameEvent event);
+
+	default boolean isHighPriority() {
+		return false;
+	}
 }
 

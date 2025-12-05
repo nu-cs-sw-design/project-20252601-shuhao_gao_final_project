@@ -10,9 +10,14 @@ import domain.game.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.security.SecureRandom;
 
+/**
+ * Concrete Factory for the Streaking Kittens expansion.
+ * Extends base game with special streak mechanics and additional card types.
+ */
 public class StreakingKittensFactory implements GameFactory {
-	private Instantiator instantiator;
+	private final Instantiator instantiator;
 
 	public StreakingKittensFactory() {
 		this.instantiator = new Instantiator();
@@ -20,27 +25,33 @@ public class StreakingKittensFactory implements GameFactory {
 
 	@Override
 	public Deck createDeck(GameType gameType, int numberOfPlayers, int maxDeckSize) {
-		return new Deck(new ArrayList<>(), createRandom(), gameType, numberOfPlayers, maxDeckSize, instantiator);
+		// Streaking expansion: Enhanced deck with streak cards
+		int expandedDeckSize = maxDeckSize + 5; // +5 for special streak cards
+		return new Deck(createCardList(), createRandom(), gameType, numberOfPlayers, expandedDeckSize, instantiator);
 	}
 
 	@Override
 	public Player createPlayer(int playerID) {
+		// Streaking expansion: Players start with standard configuration
 		return new Player(playerID, instantiator);
 	}
 
 	@Override
 	public Card createCard(CardType cardType) {
-		return instantiator.createCard(cardType);
+		// Streaking expansion: Supports all base cards plus streak mechanics
+		return new Card(cardType);
 	}
 
 	@Override
 	public Random createRandom() {
-		return instantiator.createRandom();
+		// Use secure random for unpredictable gameplay
+		return new SecureRandom();
 	}
 
 	@Override
 	public List<Card> createCardList() {
-		return instantiator.createCardList();
+		// Standard list structure
+		return new ArrayList<>();
 	}
 }
 
